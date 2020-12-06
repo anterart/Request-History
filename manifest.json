@@ -10,7 +10,7 @@
         "128": "/images/icon128.png"
     },
     "background": {
-        "scripts": ["./background.js"]
+        "page": "background.html"
     },
     "options_page": "./options.html",
     "browser_action": {
@@ -22,5 +22,6 @@
         "webRequest",
         "storage",
         "unlimitedStorage"
-    ]
+    ],
+    "content_security_policy": "script-src 'self' https://unpkg.com https://momentjs.com; object-src 'self'"
 }

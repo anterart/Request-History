@@ -1,70 +1,102 @@
+const db = new Dexie('requestHistoryDB');
+db.version(1).stores({
+    requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
+});
 
-const getHeadersMap = headers => {
-    if (!headers) {
-        return new Map();
-    }
-    return new Map(
-        headers.map(header => [header.name, header.value])
-    );
+const requestMap = new Map();
+
+const processBeforeRequest = details => {
+    console.log('processBeforeRequest');
+    // const timestamp = moment(details.timestamp).local();
+    // const dateTimeStarted = timestamp.format('YYYY-MM-DD hh:mm:ss');
+    const requestId = details.requestId;
+    const requestDetails = {};
+    requestDetails.dateTimeStarted = details.timeStamp;
+    requestDetails.initiator = details.initiator;
+    requestDetails.method = details.method;
+    requestDetails.type = details.type;
+    requestDetails.url = details.url;
+    requestMap.set(requestId, requestDetails);
 };
 
-
 const processRequestHeadersListener = details => {
-    console.log('Im running4!')
-    const retObj = {
-        requestHeaders: getHeadersMap(details.requestHeaders)
-    };
+    requestMap.get(details.requestId).requestHeaders = details.requestHeaders;
+    console.log('processRequestHeadersListener');
 };
 
 const processResponseHeadersListener = details => {
-    console.log('Im running5!')
-    const retObj = {
-        responseHeaders: getHeadersMap(details.responseHeaders)
-    };
+    const requestDetails = requestMap.get(details.requestId);
+    requestDetails.responseHeaders = details.responseHeaders;
+    requestDetails.statusCode = details.statusCode;
+    console.log('processResponseHeadersListener');
 };
 
+function storeRequestDetails(details, isSuccessful) {
+    const requestDetails = requestMap.get(details.requestId);
+    requestDetails.timeStampComplete = details.timeStamp;
+    requestDetails.isSuccessful = isSuccessful;
+    db.requests.put(requestDetails);
+}
 
-const processRequest = details => {
-    console.log('Im running6!')
-    const url = new URL(details.url);
-    const retObj = {
-        queryParams: new URLSearchParams(url.search)
-    };
+const processCompletedListener = details => {
+    storeRequestDetails(details, true);
+    console.log('processCompletedListener');
 };
+
+const processErrorOccurredListener = details => {
+    storeRequestDetails(details, false);
+    console.log('processErrorOccuredListener');
+}
 
 
 const registerRequestInterceptorListeners = () => {
-    if (!chrome.webRequest.onBeforeRequest.hasListener(processRequest)) {
-        console.log('Im running1!')
+    console.log('creating listeners')
+    if (!chrome.webRequest.onBeforeRequest.hasListener(processBeforeRequest)) {
+        console.log('register onBeforeRequest');
         chrome.webRequest.onBeforeRequest.addListener(
-            processRequest,
-            { urls: ['<all_urls>'] },
-            ['blocking']
+            processBeforeRequest,
+            { urls: ['<all_urls>'] }
         );
     }
 
     if (!chrome.webRequest.onBeforeSendHeaders.hasListener(processRequestHeadersListener)) {
-        console.log('Im running2!')
+        console.log('register onBeforeSendHeaders');
         chrome.webRequest.onBeforeSendHeaders.addListener(
             processRequestHeadersListener,
             { urls: ['<all_urls>'] },
-            ['blocking', 'requestHeaders', 'extraHeaders']
+            ['requestHeaders', 'extraHeaders']
         );
     }
 
     if (!chrome.webRequest.onHeadersReceived.hasListener(processResponseHeadersListener)) {
-        console.log('Im running3!')
+        console.log('register onHeadersReceived');
         chrome.webRequest.onHeadersReceived.addListener(
             processResponseHeadersListener,
             { urls: ['<all_urls>'] },
-            ['blocking', 'responseHeaders', 'extraHeaders']
+            ['responseHeaders', 'extraHeaders']
+        );
+    }
+
+    if (!chrome.webRequest.onErrorOccurred.hasListener(processErrorOccurredListener)) {
+        console.log('register onErrorOccured');
+        chrome.webRequest.onErrorOccurred.addListener(
+            processErrorOccurredListener,
+            { urls: ['<all_urls>'] }
+        );
+    }
+
+    if (!chrome.webRequest.onCompleted.hasListener(processCompletedListener)) {
+        console.log('register onCompleted');
+        chrome.webRequest.onCompleted.addListener(
+            processCompletedListener,
+            { urls: ['<all_urls>'] }
         );
     }
 };
 
 const init  = () => {
+    console.log('Starting init');
     registerRequestInterceptorListeners();
 };
 
-console.log('Im running aaaaaaaaaaaa!')
 init();
