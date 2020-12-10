@@ -3,6 +3,8 @@ db.version(1).stores({
     requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
 });
 
+const REQUEST_TRACKING_IS_ON =  "requestTrackingIsOn";
+
 const requestMap = new Map();
 
 const processBeforeRequest = details => {
@@ -10,8 +12,17 @@ const processBeforeRequest = details => {
     // const timestamp = moment(details.timestamp).local();
     // const dateTimeStarted = timestamp.format('YYYY-MM-DD hh:mm:ss');
     const requestId = details.requestId;
-    const requestDetails = {};
-    requestDetails.dateTimeStarted = details.timeStamp;
+    const requestDetails = {timeStampStarted: null,
+                            initiator: null,
+                            method: null,
+                            type: null,
+                            url: null,
+                            requestHeaders: null,
+                            responseHeaders: null,
+                            statusCode: null,
+                            timeStampComplete: null,
+                            isSuccessful: false};
+    requestDetails.timeStampStarted = details.timeStamp;
     requestDetails.initiator = details.initiator;
     requestDetails.method = details.method;
     requestDetails.type = details.type;
@@ -94,8 +105,15 @@ const registerRequestInterceptorListeners = () => {
     }
 };
 
-const init  = () => {
+const init = () => {
     console.log('Starting init');
+    // chrome.storage.sync.get(REQUEST_TRACKING_IS_ON, function(data) {
+    //     if (typeof data.REQUEST_TRACKING_IS_ON === 'undefined') {
+    //       // if already set it then nothing to do 
+    //     } else {
+    //       // if not set then set it 
+    //     }
+    //   });
     registerRequestInterceptorListeners();
 };
 
