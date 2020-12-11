@@ -3,60 +3,84 @@ db.version(1).stores({
     requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
 });
 
-const REQUEST_TRACKING_IS_ON =  "requestTrackingIsOn";
-
 const requestMap = new Map();
 
+function getRequestTrackingIsOn(callback, details) {
+    chrome.storage.sync.get('requestHistoryTrackingIsOn', function(result) {
+        if (result.requestHistoryTrackingIsOn || requestMap.has(details.requestId)){
+            callback(details);
+        }
+    });
+}
+
 const processBeforeRequest = details => {
-    console.log('processBeforeRequest');
-    // const timestamp = moment(details.timestamp).local();
-    // const dateTimeStarted = timestamp.format('YYYY-MM-DD hh:mm:ss');
-    const requestId = details.requestId;
-    const requestDetails = {timeStampStarted: null,
-                            initiator: null,
-                            method: null,
-                            type: null,
-                            url: null,
-                            requestHeaders: null,
-                            responseHeaders: null,
-                            statusCode: null,
-                            timeStampComplete: null,
-                            isSuccessful: false};
-    requestDetails.timeStampStarted = details.timeStamp;
-    requestDetails.initiator = details.initiator;
-    requestDetails.method = details.method;
-    requestDetails.type = details.type;
-    requestDetails.url = details.url;
-    requestMap.set(requestId, requestDetails);
+    callback = function (arg) {
+        console.log('processBeforeRequest');
+        // const timestamp = moment(arg.timestamp).local();
+        // const dateTimeStarted = timestamp.format('YYYY-MM-DD hh:mm:ss');
+        const requestId = arg.requestId;
+        const requestDetails = {timeStampStarted: null,
+                                initiator: null,
+                                method: null,
+                                type: null,
+                                url: null,
+                                requestHeaders: null,
+                                responseHeaders: null,
+                                statusCode: null,
+                                timeStampComplete: null,
+                                isSuccessful: false};
+        requestDetails.timeStampStarted = arg.timeStamp;
+        requestDetails.initiator = arg.initiator;
+        requestDetails.method = arg.method;
+        requestDetails.type = arg.type;
+        requestDetails.url = arg.url;
+        requestMap.set(requestId, requestDetails);
+    }
+    getRequestTrackingIsOn(callback, details);
 };
 
 const processRequestHeadersListener = details => {
-    requestMap.get(details.requestId).requestHeaders = details.requestHeaders;
-    console.log('processRequestHeadersListener');
+    callback = function (arg) {
+        requestMap.get(details.requestId).requestHeaders = arg.requestHeaders;
+        console.log('processRequestHeadersListener');
+    }
+    getRequestTrackingIsOn(callback, details);
 };
 
 const processResponseHeadersListener = details => {
-    const requestDetails = requestMap.get(details.requestId);
-    requestDetails.responseHeaders = details.responseHeaders;
-    requestDetails.statusCode = details.statusCode;
-    console.log('processResponseHeadersListener');
+    callback = function (arg) {
+        const requestDetails = requestMap.get(arg.requestId);
+        requestDetails.responseHeaders = arg.responseHeaders;
+        requestDetails.statusCode = arg.statusCode;
+        console.log('processResponseHeadersListener');
+    }
+    getRequestTrackingIsOn(callback, details);
 };
 
 function storeRequestDetails(details, isSuccessful) {
-    const requestDetails = requestMap.get(details.requestId);
-    requestDetails.timeStampComplete = details.timeStamp;
-    requestDetails.isSuccessful = isSuccessful;
-    db.requests.put(requestDetails);
+    callback = function (arg) {
+        const requestDetails = requestMap.get(arg.requestId);
+        requestDetails.timeStampComplete = arg.timeStamp;
+        requestDetails.isSuccessful = isSuccessful;
+        db.requests.put(requestDetails);
+    }
+    getRequestTrackingIsOn(callback, details);
 }
 
 const processCompletedListener = details => {
-    storeRequestDetails(details, true);
-    console.log('processCompletedListener');
+    callback = function (arg) {
+        storeRequestDetails(arg, true);
+        console.log('processCompletedListener');
+    }
+    getRequestTrackingIsOn(callback, details);
 };
 
 const processErrorOccurredListener = details => {
-    storeRequestDetails(details, false);
-    console.log('processErrorOccuredListener');
+    callback = function (arg) {
+        storeRequestDetails(arg, false);
+        console.log('processErrorOccuredListener');
+    }
+    getRequestTrackingIsOn(callback, details);
 }
 
 
@@ -105,15 +129,16 @@ const registerRequestInterceptorListeners = () => {
     }
 };
 
-const init = () => {
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+  }
+
+const init = async () => {
     console.log('Starting init');
-    // chrome.storage.sync.get(REQUEST_TRACKING_IS_ON, function(data) {
-    //     if (typeof data.REQUEST_TRACKING_IS_ON === 'undefined') {
-    //       // if already set it then nothing to do 
-    //     } else {
-    //       // if not set then set it 
-    //     }
-    //   });
+    chrome.storage.sync.get({requestHistoryTrackingIsOn: true}, function(data) {
+        chrome.storage.sync.set({requestHistoryTrackingIsOn: data.requestHistoryTrackingIsOn}, function() {
+  });
+});
     registerRequestInterceptorListeners();
 };
 
