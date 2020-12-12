@@ -6,3 +6,8 @@ chrome.storage.sync.get('requestHistoryTrackingIsOn', function(result) {
         });
     });
 })
+
+showCollectedResultsBtn = document.getElementById('showCollectedRequests');
+showCollectedResultsBtn.addEventListener('click', function () {
+    chrome.tabs.create({url: "showCollectedRequests.html"})
+});
