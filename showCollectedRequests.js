@@ -3,6 +3,14 @@ db.version(1).stores({
     requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
 });
 
+function deleteAll() {
+    console.log();
+}
+
+function deleteSelected() {
+    console.log();
+}
+
 
 function requestHeadersCellRenderer(params) {
     if (params.data.requestHeaders)
@@ -52,21 +60,27 @@ function responseHeadersCellRenderer(params) {
     return span;
 }
 
+function timestampColValueFormatter(params) {
+    const timestamp = moment(params.value).local();
+    const dateTimeStarted = timestamp.format('YYYY-MM-DD hh:mm:ss.SSS');
+    return dateTimeStarted;
+}
+
 
 db.requests.toArray().then(requests => {
     const columnDefs = [
-        {headerName: "Initiator", field: "initiator"},
-        {headerName: "Is Successful", field: "isSuccessful"},
-        {headerName: "Method", field: "method"},
+        {headerName: "Initiator URL", field: "initiator", editable: true, filter: true, sortable: true},
+        {headerName: "Origin URL", field: "url", editable: true, filter: true, sortable: true},
+        {headerName: "Is Successful", field: "isSuccessful", filter: true, sortable: true},
+        {headerName: "Method", field: "method", editable: true, filter: true, sortable: true},
         {headerName: "Request Headers", field: "requestHeaders",
          cellRenderer: (params) => requestHeadersCellRenderer(params)},
         {headerName: "Response Headers", field: "responseHeaders",
          cellRenderer: (params) => responseHeadersCellRenderer(params)},
-        {headerName: "Status Code", field: "statusCode"},
-        {headerName: "Time Stamp Complete", field: "timeStampComplete"},
-        {headerName: "Time Stamp Started", field: "timeStampStarted"},
-        {headerName: "Type", field: "type"},
-        {headerName: "URL", field: "url"}
+        {headerName: "Status Code", field: "statusCode", editable: true, filter: true, sortable: true},
+        {headerName: "Time Stamp Started", field: "timeStampStarted", valueFormatter: timestampColValueFormatter, filter: 'agDateColumnFilter', sortable: true},
+        {headerName: "Time Stamp Complete", field: "timeStampComplete", valueFormatter: timestampColValueFormatter, filter: 'agDateColumnFilter', sortable: true},
+        {headerName: "Type", field: "type", editable: true, filter: true, sortable: true}
       ];
           
       // let the grid know which columns and what data to use
@@ -75,10 +89,15 @@ db.requests.toArray().then(requests => {
             resizable: true
         },
         columnDefs: columnDefs,
-        rowData: requests
+        rowData: requests,
       };
       // setup the grid after the page has finished loading
       const gridDiv = document.querySelector('#myGrid');
       new agGrid.Grid(gridDiv, gridOptions);
+
+      deleteAllBtn = document.getElementById('deleteAll');
+      deleteAllBtn.addEventListener('click', deleteAll);
+      deleteSelectedBtn = document.getElementById('deleteSelected');
+      deleteSelectedBtn.addEventListener('click', deleteSelected);
 });
 

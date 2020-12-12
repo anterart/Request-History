@@ -1,3 +1,10 @@
 .ag-body-viewport-wrapper.ag-layout-normal {
     overflow-x: scroll;
   }
+
+  div.ag-root .ag-cell-focus {
+    -webkit-user-select: text;
+    -moz-user-select: text;
+    -ms-user-select: text;
+    user-select: text;
+}
