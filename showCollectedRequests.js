@@ -3,12 +3,29 @@ db.version(1).stores({
     requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
 });
 
-function deleteAll() {
-    console.log();
+let loadedAgGrid = null;
+
+function selectAll() {
+    loadedAgGrid.gridOptions.api.forEachNode(function (rowNode, index) {
+        rowNode.setSelected(true);
+    });
+}
+
+function unselectAll() {
+    loadedAgGrid.gridOptions.api.forEachNode(function (rowNode, index) {
+        rowNode.setSelected(false);
+    });
 }
 
 function deleteSelected() {
-    console.log();
+    selectedNodes = loadedAgGrid.gridOptions.api.getSelectedNodes();
+    for (let i = 0; i < selectedNodes.length; i += 1) {
+        selectedNodes[i] = selectedNodes[i].data;
+    }
+    loadedAgGrid.gridOptions.api.applyTransaction({remove: selectedNodes});
+    for (let i = 0; i < selectedNodes.length; i += 1) {
+        db.requests.delete(selectedNodes[i].id);
+    }
 }
 
 
@@ -90,14 +107,18 @@ db.requests.toArray().then(requests => {
         },
         columnDefs: columnDefs,
         rowData: requests,
+        rowSelection: 'multiple',
+        rowMultiSelectWithClick: true,
       };
       // setup the grid after the page has finished loading
       const gridDiv = document.querySelector('#myGrid');
-      new agGrid.Grid(gridDiv, gridOptions);
+      loadedAgGrid = new agGrid.Grid(gridDiv, gridOptions);
 
-      deleteAllBtn = document.getElementById('deleteAll');
-      deleteAllBtn.addEventListener('click', deleteAll);
+      selectAllBtn = document.getElementById('selectAll');
+      selectAllBtn.addEventListener('click', selectAll);
       deleteSelectedBtn = document.getElementById('deleteSelected');
       deleteSelectedBtn.addEventListener('click', deleteSelected);
+      unselectAllBtn = document.getElementById('unselectAll');
+      unselectAllBtn.addEventListener('click', unselectAll);
 });
 

@@ -8,3 +8,7 @@
     -ms-user-select: text;
     user-select: text;
 }
+
+.ag-header-cell-label {
+  justify-content: center;
+}
