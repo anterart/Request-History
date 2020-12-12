@@ -4,6 +4,9 @@ db.version(1).stores({
 });
 
 let loadedAgGrid = null;
+let modal = null;
+let spanModal = null;
+let modalAgGrid = null;
 
 function selectAll() {
     loadedAgGrid.gridOptions.api.forEachNode(function (rowNode, index) {
@@ -32,17 +35,29 @@ function deleteSelected() {
 function requestHeadersCellRenderer(params) {
     if (params.data.requestHeaders)
     {
-        function requestHeadersBtnEventListener() {
-            let textToDisplay = "The request had the following headers:\n\n";
-            let delim = "";
-            for (let i = 0; i < params.data.requestHeaders.length; i += 1) {
-                textToDisplay += delim + params.data.requestHeaders[i].name + ":\n" + params.data.requestHeaders[i].value;
-                delim = '\n\n';
-            }
-            alert(`${textToDisplay}`);
-        }
-
         const btn = document.createElement("BUTTON");
+        function requestHeadersBtnEventListener() {
+            const columnDefs = [
+                {headerName: "Name", field: "name", editable: true, sortable: true},
+                {headerName: "Value", field: "value", editable: true, sortable: true},
+            ];
+                  
+              // let the grid know which columns and what data to use
+            const gridOptions = {
+                defaultColDef: {
+                    resizable: true
+                },
+                columnDefs: columnDefs,
+                rowData: params.data.requestHeaders,
+                rowSelection: 'multiple',
+                rowMultiSelectWithClick: true,
+            };
+              // setup the grid after the page has finished loading
+            const modalGrid = document.querySelector('#modalGrid');
+
+            modal.style.display = "block";
+            modalAgGrid = new agGrid.Grid(modalGrid, gridOptions);
+        }
         const headersNum = params.data.requestHeaders.length;
         btn.textContent = `show ${headersNum} request headers.`
         btn.addEventListener('click', requestHeadersBtnEventListener);
@@ -57,17 +72,30 @@ function responseHeadersCellRenderer(params) {
     if (params.data.responseHeaders)
     {
         function responseHeadersBtnEventListener() {
-            let textToDisplay = "The response had the following headers:\n\n";
-            let delim = "";
-            for (let i = 0; i < params.data.responseHeaders.length; i += 1) {
-                textToDisplay += delim + params.data.responseHeaders[i].name + ":\n" + params.data.responseHeaders[i].value;
-                delim = '\n\n';
-            }
-            alert(`${textToDisplay}`);
+            const columnDefs = [
+                {headerName: "Name", field: "name", editable: true, sortable: true},
+                {headerName: "Value", field: "value", editable: true, sortable: true},
+            ];
+                  
+              // let the grid know which columns and what data to use
+            const gridOptions = {
+                defaultColDef: {
+                    resizable: true
+                },
+                columnDefs: columnDefs,
+                rowData: params.data.responseHeaders,
+                rowSelection: 'multiple',
+                rowMultiSelectWithClick: true,
+            };
+              // setup the grid after the page has finished loading
+            const modalGrid = document.querySelector('#modalGrid');
+
+            modal.style.display = "block";
+            modalAgGrid = new agGrid.Grid(modalGrid, gridOptions);
         }
 
         const btn = document.createElement("BUTTON");
-        const headersNum = params.data.requestHeaders.length;
+        const headersNum = params.data.responseHeaders.length;
         btn.textContent = `show ${headersNum} response headers.`
         btn.addEventListener('click', responseHeadersBtnEventListener);
         return btn;
@@ -120,5 +148,21 @@ db.requests.toArray().then(requests => {
       deleteSelectedBtn.addEventListener('click', deleteSelected);
       unselectAllBtn = document.getElementById('unselectAll');
       unselectAllBtn.addEventListener('click', unselectAll);
+
+      modal = document.getElementById("myModal");
+
+      spanModal = document.getElementsByClassName("close")[0];
+
+      spanModal.onclick = function() {
+        modal.style.display = "none";
+        modalAgGrid.gridOptions.api.destroy();
+      }
+
+      window.onclick = function(event) {
+      if (event.target == modal) {
+            modal.style.display = "none";
+            modalAgGrid.gridOptions.api.destroy();
+            }
+      }
 });
 
