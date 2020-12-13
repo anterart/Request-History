@@ -5,11 +5,11 @@ This a Chrome extension that allows to store all requests done in the browser an
 
 ## Usage:
 1. Install the extension:
-..* Download the files from the repository.
-..* Unpack the contents to one folder.
-..* Go to "chrome://extensions/".
-..* Switch to developer mode.
-..* Choose load unpacked and browse to the folder where the extension files are located.
+   *  Download the files from the repository.
+   *  Unpack the contents to one folder.
+   *  Go to "chrome://extensions/".
+   *  Switch to developer mode.
+   *  Choose load unpacked and browse to the folder where the extension files are located.
 2. Click the extension icon.
 3. Toggle on the "Request Tracking" option in the popup menu.
 4. In order to view the collected request, click the "Show Collected Requests" button in the popup menu.
