@@ -113,7 +113,7 @@ function responseHeadersCellRenderer(params) {
 
 function timestampColValueFormatter(params) {
     const timestamp = moment(params.value).local();
-    const dateTimeStarted = timestamp.format('YYYY-MM-DD hh:mm:ss.SSS');
+    const dateTimeStarted = timestamp.format('YYYY-MM-DD HH:mm:ss.SSS');
     return dateTimeStarted;
 }
 
