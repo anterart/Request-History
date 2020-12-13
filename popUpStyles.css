@@ -1,6 +1,24 @@
 body {
-min-width: 300px; /* your desired width */
-max-width: 100%;
-position: relative;
-vertical-align:middle;
+    font-family: cursive;
+    width: 35%;
+}
+
+h3 {
+    display: inline-block;
+    width: 40%;
+}
+
+button {
+    margin-bottom: 10%;
+    margin-top: 5%;
+    width: 100%;
+}
+
+img {
+    display: inline-block;
+    width: 40%;
+}
+
+table {
+    width: 100%;
 }
