@@ -128,7 +128,7 @@ function initGrid(requests) {
         {headerName: "Response Headers", field: "responseHeaders",
          cellRenderer: (params) => responseHeadersCellRenderer(params)},
         {headerName: "Status Code", field: "statusCode", editable: true, filter: true, sortable: true},
-        {headerName: "Time Stamp Started", field: "timeStampStarted", valueFormatter: timestampColValueFormatter, filter: 'agDateColumnFilter', sortable: true},
+        {headerName: "Time Stamp Started", field: "timeStampStarted", valueFormatter: timestampColValueFormatter, filter: 'agDateColumnFilter', sortable: true, sort: 'desc'},
         {headerName: "Time Stamp Complete", field: "timeStampComplete", valueFormatter: timestampColValueFormatter, filter: 'agDateColumnFilter', sortable: true},
         {headerName: "Type", field: "type", editable: true, filter: true, sortable: true}
       ];
