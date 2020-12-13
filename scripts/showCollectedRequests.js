@@ -1,26 +1,39 @@
+// module that shows collected requests in a grid and allows to analyze, look and make manipulations on it.
+
+// reference to Chrome IndexedDb
 const db = new Dexie('requestHistoryDB');
 db.version(1).stores({
     requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
 });
 
+// initializing globals
 let loadedAgGrid = null;
 let modal = null;
 let spanModal = null;
 let modalAgGrid = null;
 let showRequestHistoryRequestCheckBox = null;
 
+/**
+ * Selects all rows shown in the grid at the moment
+ */
 function selectAll() {
     loadedAgGrid.gridOptions.api.forEachNode(function (rowNode, index) {
         rowNode.setSelected(true);
     });
 }
 
+/**
+ * Unselects all rows shown in the grid at the moment
+ */
 function unselectAll() {
     loadedAgGrid.gridOptions.api.forEachNode(function (rowNode, index) {
         rowNode.setSelected(false);
     });
 }
 
+/**
+ * Reloads the grid
+ */
 async function refreshGrid() {
     if (loadedAgGrid.gridOptions.api)
     {
@@ -31,6 +44,9 @@ async function refreshGrid() {
     });
 }
 
+/**
+ * Deletes selected rows from the grid and also deletes their representative entries in Chrome IndexedDB
+ */
 async function deleteSelected() {
     selectedNodes = loadedAgGrid.gridOptions.api.getSelectedNodes();
     for (let i = 0; i < selectedNodes.length; i += 1) {
@@ -42,10 +58,18 @@ async function deleteSelected() {
     }
 }
 
+
+/**
+ * Renders the HTML elements in request headers column of the grid
+ * @param {object} params 
+ */
 function requestHeadersCellRenderer(params) {
     if (params.data.requestHeaders)
     {
         const btn = document.createElement("BUTTON");
+        /**
+         * Opens a modal with request headers information when the button is pressed
+         */
         function requestHeadersBtnEventListener() {
             const columnDefs = [
                 {headerName: "Name", field: "name", editable: true, sortable: true},
@@ -78,9 +102,16 @@ function requestHeadersCellRenderer(params) {
     return span;
 }
 
+/**
+ * Renders the HTML elements in response headers column of the grid
+ * @param {object} params 
+ */
 function responseHeadersCellRenderer(params) {
     if (params.data.responseHeaders)
     {
+        /**
+         * Opens a modal with response headers information when the button is pressed
+         */
         function responseHeadersBtnEventListener() {
             const columnDefs = [
                 {headerName: "Name", field: "name", editable: true, sortable: true},
@@ -115,6 +146,10 @@ function responseHeadersCellRenderer(params) {
     return span;
 }
 
+/**
+ * Convert timestamp to human readable datetime string
+ * @param {object} params 
+ */
 function timestampColValueFormatter(params) {
     const timestamp = moment(params.value).local();
     const dateTimeStarted = timestamp.format('YYYY-MM-DD HH:mm:ss.SSS');
@@ -122,10 +157,17 @@ function timestampColValueFormatter(params) {
 }
 
 
+/**
+ * Returns true if showRequestHistoryRequestCheckBox is checked
+ */
 function isExternalFilterPresent() {
     return showRequestHistoryRequestCheckBox.checked;
 }
 
+/**
+ * Checks whether the initiator or url host equal to Request History host
+ * @param {object} rowNode 
+ */
 function doesExternalFilterPass(rowNode) {
     let urlHost;
     let initiatorHost;
@@ -145,6 +187,10 @@ function doesExternalFilterPass(rowNode) {
     return !((extensionHost === initiatorHost) || (extensionHost === urlHost));
 }
 
+/**
+ * Initializes the grid and loads the data into it
+ * @param {Array<object>} requests 
+ */
 function initGrid(requests) {
     const columnDefs = [
         {headerName: "Initiator URL", field: "initiator", editable: true, filter: true, sortable: true},
@@ -180,6 +226,7 @@ function initGrid(requests) {
       
 }
 
+// Loads the data from Chrome IndexedDB and initializes the grid with it
 db.requests.toArray().then(requests => {
     selectAllBtn = document.getElementById('selectAll');
     selectAllBtn.addEventListener('click', selectAll);
@@ -197,11 +244,13 @@ db.requests.toArray().then(requests => {
 
     spanModal = document.getElementsByClassName("close")[0];
 
+    // Closes the modal when user clicked on the (x) button.
     spanModal.onclick = function() {
-    modal.style.display = "none";
-    modalAgGrid.gridOptions.api.destroy();
+        modal.style.display = "none";
+        modalAgGrid.gridOptions.api.destroy();
     }
 
+    // Closes the modal when user clicked outside its bounds
     window.onclick = function(event) {
     if (event.target == modal) {
         modal.style.display = "none";

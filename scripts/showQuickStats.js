@@ -1,8 +1,15 @@
+// Chrome IndexedDB reference
 const db = new Dexie('requestHistoryDB');
 db.version(1).stores({
     requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
 });
 
+/**
+ * Returns 1 if a has a lower number of request. Returns -1 if a has a higher number of requests.
+ * Returns 0 if a and b have the same number of requests.
+ * @param {*} a 
+ * @param {*} b 
+ */
 function topComparator(a, b) {
     if (a.numRequests < b.numRequests) {
         return 1;
@@ -13,6 +20,7 @@ function topComparator(a, b) {
     return 0;
 }
 
+// Load the requests form IndexedDB, calculate top entries, feed them to the grids
 db.requests.toArray().then(requests => {
     const hostMap = new Map();
     for (let i = 0; i < requests.length; i+= 1) {

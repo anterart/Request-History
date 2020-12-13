@@ -1,11 +1,21 @@
+// Module that collects requests fired in the browser and stores them in Chrome IndexedDB.
+
+// Reference to IndexedDB
 const db = new Dexie('requestHistoryDB');
 db.version(1).stores({
     requests: '++id, initiator, method, timeStampStarted, timeStampCompleted, type, url, requestHeaders, responseHeaders, statusCode, isSuccessful'
 });
 
+// Intermediate requests storing map
 const requestMap = new Map();
 
-function getRequestTrackingIsOn(callback, details) {
+/**
+ * If requestHistoryTrackingIsOn key in storage is true, or the request was already partially parsed,
+ * proceed processing the request by calling the callback with the request details.
+ * @param {CallableFunction} callback 
+ * @param {object} details 
+ */
+function proceedProcessingRequest(callback, details) {
     chrome.storage.sync.get('requestHistoryTrackingIsOn', function(result) {
         if (result.requestHistoryTrackingIsOn || requestMap.has(details.requestId)){
             callback(details);
@@ -13,6 +23,10 @@ function getRequestTrackingIsOn(callback, details) {
     });
 }
 
+/**
+ * Handler of onBeforeRequest event.
+ * @param {object} details 
+ */
 const processBeforeRequest = details => {
     callback = function (arg) {
         const requestId = arg.requestId;
@@ -33,25 +47,38 @@ const processBeforeRequest = details => {
         requestDetails.url = arg.url;
         requestMap.set(requestId, requestDetails);
     }
-    getRequestTrackingIsOn(callback, details);
+    proceedProcessingRequest(callback, details);
 };
 
+/**
+ * Handler of onRequestHeaders event.
+ * @param {object} details 
+ */
 const processRequestHeadersListener = details => {
     callback = function (arg) {
         requestMap.get(details.requestId).requestHeaders = arg.requestHeaders;
     }
-    getRequestTrackingIsOn(callback, details);
+    proceedProcessingRequest(callback, details);
 };
 
+/**
+ * Handler of onResponseHeaders event.
+ * @param {object} details 
+ */
 const processResponseHeadersListener = details => {
     callback = function (arg) {
         const requestDetails = requestMap.get(arg.requestId);
         requestDetails.responseHeaders = arg.responseHeaders;
         requestDetails.statusCode = arg.statusCode;
     }
-    getRequestTrackingIsOn(callback, details);
+    proceedProcessingRequest(callback, details);
 };
 
+/**
+ * Stores the request
+ * @param {object} details : request details
+ * @param {boolean} isSuccessful : if the request is successful or not
+ */
 function storeRequestDetails(details, isSuccessful) {
     callback = function (arg) {
         const requestDetails = requestMap.get(arg.requestId);
@@ -59,24 +86,34 @@ function storeRequestDetails(details, isSuccessful) {
         requestDetails.isSuccessful = isSuccessful;
         db.requests.put(requestDetails);
     }
-    getRequestTrackingIsOn(callback, details);
+    proceedProcessingRequest(callback, details);
 }
 
+/**
+ * onCompleted handler.
+ * @param {object} details 
+ */
 const processCompletedListener = details => {
     callback = function (arg) {
         storeRequestDetails(arg, true);
     }
-    getRequestTrackingIsOn(callback, details);
+    proceedProcessingRequest(callback, details);
 };
 
+/**
+ * onErrorOccured handler.
+ * @param {object} details 
+ */
 const processErrorOccurredListener = details => {
     callback = function (arg) {
         storeRequestDetails(arg, false);
     }
-    getRequestTrackingIsOn(callback, details);
+    proceedProcessingRequest(callback, details);
 }
 
-
+/**
+ * Registers event listeners for request related events.
+ */
 const registerRequestInterceptorListeners = () => {
     console.log('creating listeners')
     if (!chrome.webRequest.onBeforeRequest.hasListener(processBeforeRequest)) {
@@ -117,10 +154,9 @@ const registerRequestInterceptorListeners = () => {
     }
 };
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
+/**
+ * Initializes request storing mechanisms.
+ */
 const init = async () => {
     console.log('Starting init');
     chrome.storage.sync.get({requestHistoryTrackingIsOn: true}, function(data) {
