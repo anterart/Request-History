@@ -15,9 +15,6 @@ function getRequestTrackingIsOn(callback, details) {
 
 const processBeforeRequest = details => {
     callback = function (arg) {
-        console.log('processBeforeRequest');
-        // const timestamp = moment(arg.timestamp).local();
-        // const dateTimeStarted = timestamp.format('YYYY-MM-DD hh:mm:ss');
         const requestId = arg.requestId;
         const requestDetails = {timeStampStarted: null,
                                 initiator: null,
@@ -42,7 +39,6 @@ const processBeforeRequest = details => {
 const processRequestHeadersListener = details => {
     callback = function (arg) {
         requestMap.get(details.requestId).requestHeaders = arg.requestHeaders;
-        console.log('processRequestHeadersListener');
     }
     getRequestTrackingIsOn(callback, details);
 };
@@ -52,7 +48,6 @@ const processResponseHeadersListener = details => {
         const requestDetails = requestMap.get(arg.requestId);
         requestDetails.responseHeaders = arg.responseHeaders;
         requestDetails.statusCode = arg.statusCode;
-        console.log('processResponseHeadersListener');
     }
     getRequestTrackingIsOn(callback, details);
 };
@@ -70,7 +65,6 @@ function storeRequestDetails(details, isSuccessful) {
 const processCompletedListener = details => {
     callback = function (arg) {
         storeRequestDetails(arg, true);
-        console.log('processCompletedListener');
     }
     getRequestTrackingIsOn(callback, details);
 };
@@ -78,7 +72,6 @@ const processCompletedListener = details => {
 const processErrorOccurredListener = details => {
     callback = function (arg) {
         storeRequestDetails(arg, false);
-        console.log('processErrorOccuredListener');
     }
     getRequestTrackingIsOn(callback, details);
 }
@@ -87,7 +80,6 @@ const processErrorOccurredListener = details => {
 const registerRequestInterceptorListeners = () => {
     console.log('creating listeners')
     if (!chrome.webRequest.onBeforeRequest.hasListener(processBeforeRequest)) {
-        console.log('register onBeforeRequest');
         chrome.webRequest.onBeforeRequest.addListener(
             processBeforeRequest,
             { urls: ['<all_urls>'] }
@@ -95,7 +87,6 @@ const registerRequestInterceptorListeners = () => {
     }
 
     if (!chrome.webRequest.onBeforeSendHeaders.hasListener(processRequestHeadersListener)) {
-        console.log('register onBeforeSendHeaders');
         chrome.webRequest.onBeforeSendHeaders.addListener(
             processRequestHeadersListener,
             { urls: ['<all_urls>'] },
@@ -104,7 +95,6 @@ const registerRequestInterceptorListeners = () => {
     }
 
     if (!chrome.webRequest.onHeadersReceived.hasListener(processResponseHeadersListener)) {
-        console.log('register onHeadersReceived');
         chrome.webRequest.onHeadersReceived.addListener(
             processResponseHeadersListener,
             { urls: ['<all_urls>'] },
@@ -113,7 +103,6 @@ const registerRequestInterceptorListeners = () => {
     }
 
     if (!chrome.webRequest.onErrorOccurred.hasListener(processErrorOccurredListener)) {
-        console.log('register onErrorOccured');
         chrome.webRequest.onErrorOccurred.addListener(
             processErrorOccurredListener,
             { urls: ['<all_urls>'] }
@@ -121,7 +110,6 @@ const registerRequestInterceptorListeners = () => {
     }
 
     if (!chrome.webRequest.onCompleted.hasListener(processCompletedListener)) {
-        console.log('register onCompleted');
         chrome.webRequest.onCompleted.addListener(
             processCompletedListener,
             { urls: ['<all_urls>'] }

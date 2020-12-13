@@ -20,14 +20,14 @@ function unselectAll() {
     });
 }
 
-function deleteSelected() {
+async function deleteSelected() {
     selectedNodes = loadedAgGrid.gridOptions.api.getSelectedNodes();
     for (let i = 0; i < selectedNodes.length; i += 1) {
         selectedNodes[i] = selectedNodes[i].data;
     }
     loadedAgGrid.gridOptions.api.applyTransaction({remove: selectedNodes});
     for (let i = 0; i < selectedNodes.length; i += 1) {
-        db.requests.delete(selectedNodes[i].id);
+        await db.requests.delete(selectedNodes[i].id);
     }
 }
 
