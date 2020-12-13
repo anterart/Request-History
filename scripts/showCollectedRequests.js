@@ -20,6 +20,13 @@ function unselectAll() {
     });
 }
 
+async function refreshGrid() {
+    loadedAgGrid.gridOptions.api.destroy();
+    db.requests.toArray().then(requests => {
+        initGrid(requests);
+    });
+}
+
 async function deleteSelected() {
     selectedNodes = loadedAgGrid.gridOptions.api.getSelectedNodes();
     for (let i = 0; i < selectedNodes.length; i += 1) {
@@ -30,7 +37,6 @@ async function deleteSelected() {
         await db.requests.delete(selectedNodes[i].id);
     }
 }
-
 
 function requestHeadersCellRenderer(params) {
     if (params.data.requestHeaders)
@@ -111,8 +117,7 @@ function timestampColValueFormatter(params) {
     return dateTimeStarted;
 }
 
-
-db.requests.toArray().then(requests => {
+function initGrid(requests) {
     const columnDefs = [
         {headerName: "Initiator URL", field: "initiator", editable: true, filter: true, sortable: true},
         {headerName: "Origin URL", field: "url", editable: true, filter: true, sortable: true},
@@ -142,27 +147,34 @@ db.requests.toArray().then(requests => {
       const gridDiv = document.querySelector('#myGrid');
       loadedAgGrid = new agGrid.Grid(gridDiv, gridOptions);
 
-      selectAllBtn = document.getElementById('selectAll');
-      selectAllBtn.addEventListener('click', selectAll);
-      deleteSelectedBtn = document.getElementById('deleteSelected');
-      deleteSelectedBtn.addEventListener('click', deleteSelected);
-      unselectAllBtn = document.getElementById('unselectAll');
-      unselectAllBtn.addEventListener('click', unselectAll);
+      
+}
 
-      modal = document.getElementById("myModal");
+db.requests.toArray().then(requests => {
+    initGrid(requests);
+    selectAllBtn = document.getElementById('selectAll');
+    selectAllBtn.addEventListener('click', selectAll);
+    deleteSelectedBtn = document.getElementById('deleteSelected');
+    deleteSelectedBtn.addEventListener('click', deleteSelected);
+    unselectAllBtn = document.getElementById('unselectAll');
+    unselectAllBtn.addEventListener('click', unselectAll);
+    refreshGridBtn = document.getElementById('refreshGrid');
+    refreshGridBtn.addEventListener('click', refreshGrid);
 
-      spanModal = document.getElementsByClassName("close")[0];
+    modal = document.getElementById("myModal");
 
-      spanModal.onclick = function() {
+    spanModal = document.getElementsByClassName("close")[0];
+
+    spanModal.onclick = function() {
+    modal.style.display = "none";
+    modalAgGrid.gridOptions.api.destroy();
+    }
+
+    window.onclick = function(event) {
+    if (event.target == modal) {
         modal.style.display = "none";
         modalAgGrid.gridOptions.api.destroy();
-      }
-
-      window.onclick = function(event) {
-      if (event.target == modal) {
-            modal.style.display = "none";
-            modalAgGrid.gridOptions.api.destroy();
-            }
-      }
+        }
+    }
 });
 

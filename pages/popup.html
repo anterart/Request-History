@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Request History</title>
+    <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
+    <link rel="stylesheet" href="../styles/popUpStyles.css">
+  </head>
+  <body>
+    <table class="table">
+        <tbody>
+        <tr>
+            <td>
+                <img src="../images/icon128.png" />
+                <h3>Request History</h3>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="checkbox" id="requestTrackingCheckBox" name="requestTrackingCheckBox" value="requestTrackingCheckBox">
+                <label for="vehicle1"> Request Tracking</label>
+            </td>
+        </tr>
+        <tr>
+            <td>
+                <input type="button" id='showCollectedRequests' value="Show Collected Requests">
+            </td>
+         </tr>
+          <tr>
+              <td>
+                  <input type="button" id='showQuickStats' value="Show Quick Stats">
+                </td>
+          </tr>
+          <tr>
+              <td>
+                  <input type="button" id='exportCollectedRequests' value="Export Collected Requests">
+                </td>
+          </tr>
+          <tr>
+              <td>
+                <p style="width: 100%; font-size: 10;">&copy; 2020, Artyom Abramovich.</p>    
+              </td>
+          </tr>
+        </tbody>
+      </table>
+      <script src="../scripts/popUpScript.js"></script> 
+  </body>
+</html>

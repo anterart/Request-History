@@ -4,10 +4,10 @@
     <script src="https://unpkg.com/ag-grid-community/dist/ag-grid-community.min.noStyle.js"></script>
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-grid.css">
     <link rel="stylesheet" href="https://unpkg.com/ag-grid-community/dist/styles/ag-theme-alpine.css">
-    <link rel="stylesheet" href="showCollectedRequests.css">
     <script src="https://unpkg.com/dexie@latest/dist/dexie.js"></script>
     <script src="https://momentjs.com/downloads/moment.min.js"></script>
-    <script src="showCollectedRequests.js"></script>
+    <link rel="stylesheet" href="../styles/showCollectedRequests.css">
+    <script src="../scripts/showCollectedRequests.js"></script>
     <title>Request History - Collected Requests</title>
   </head>
   <body style="height: 100%;width: 100%; overflow: hidden;">
@@ -16,8 +16,9 @@
       <button id="selectAll">Select All Rows</button>
       <button id="unselectAll">Deselect All Rows</button>
       <button id="deleteSelected">Delete Selected Rows</button>
+      <button id="refreshGrid">Refresh Grid</button>
     </div>
-    <div id="myGrid" style="height: 70%;width: 99%;" class="ag-theme-alpine"></div>
+    <div id="myGrid" style="height: 84%;width: 99%;" class="ag-theme-alpine"></div>
     
     <center>
     <!-- The Modal -->

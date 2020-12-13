@@ -9,12 +9,12 @@ chrome.storage.sync.get('requestHistoryTrackingIsOn', function(result) {
 
 showCollectedResultsBtn = document.getElementById('showCollectedRequests');
 showCollectedResultsBtn.addEventListener('click', function () {
-    chrome.tabs.create({url: "showCollectedRequests.html"});
+    chrome.tabs.create({url: "../pages/showCollectedRequests.html"});
 });
 
 showQuickStatsBtn = document.getElementById('showQuickStats');
 showQuickStatsBtn.addEventListener('click', function () {
-    chrome.tabs.create({url: "showQuickStats.html"});
+    chrome.tabs.create({url: "../pages/showQuickStats.html"});
 });
 
 const db = new Dexie('requestHistoryDB');
