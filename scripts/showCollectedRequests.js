@@ -7,6 +7,7 @@ let loadedAgGrid = null;
 let modal = null;
 let spanModal = null;
 let modalAgGrid = null;
+let showRequestHistoryRequestCheckBox = null;
 
 function selectAll() {
     loadedAgGrid.gridOptions.api.forEachNode(function (rowNode, index) {
@@ -21,7 +22,10 @@ function unselectAll() {
 }
 
 async function refreshGrid() {
-    loadedAgGrid.gridOptions.api.destroy();
+    if (loadedAgGrid.gridOptions.api)
+    {
+        loadedAgGrid.gridOptions.api.destroy();
+    }
     db.requests.toArray().then(requests => {
         initGrid(requests);
     });
@@ -117,6 +121,30 @@ function timestampColValueFormatter(params) {
     return dateTimeStarted;
 }
 
+
+function isExternalFilterPresent() {
+    return showRequestHistoryRequestCheckBox.checked;
+}
+
+function doesExternalFilterPass(rowNode) {
+    let urlHost;
+    let initiatorHost;
+    try {
+        urlHost = new URL(rowNode.data.url).host;
+    }
+    catch (e) {
+        urlHost = '';
+    }
+    try {
+        initiatorHost = new URL(rowNode.data.initiator).host;
+    }
+    catch (e) {
+        initiatorHost = '';
+    } 
+    extensionHost = chrome.runtime.id;
+    return !((extensionHost === initiatorHost) || (extensionHost === urlHost));
+}
+
 function initGrid(requests) {
     const columnDefs = [
         {headerName: "Initiator URL", field: "initiator", editable: true, filter: true, sortable: true},
@@ -142,6 +170,8 @@ function initGrid(requests) {
         rowData: requests,
         rowSelection: 'multiple',
         rowMultiSelectWithClick: true,
+        isExternalFilterPresent: isExternalFilterPresent,
+        doesExternalFilterPass: doesExternalFilterPass,
       };
       // setup the grid after the page has finished loading
       const gridDiv = document.querySelector('#myGrid');
@@ -151,7 +181,6 @@ function initGrid(requests) {
 }
 
 db.requests.toArray().then(requests => {
-    initGrid(requests);
     selectAllBtn = document.getElementById('selectAll');
     selectAllBtn.addEventListener('click', selectAll);
     deleteSelectedBtn = document.getElementById('deleteSelected');
@@ -160,6 +189,9 @@ db.requests.toArray().then(requests => {
     unselectAllBtn.addEventListener('click', unselectAll);
     refreshGridBtn = document.getElementById('refreshGrid');
     refreshGridBtn.addEventListener('click', refreshGrid);
+    showRequestHistoryRequestCheckBox = document.getElementById('showRequestHistoryRequests');
+    showRequestHistoryRequestCheckBox.addEventListener('change', refreshGrid);
+    initGrid(requests);
 
     modal = document.getElementById("myModal");
 
