@@ -193,8 +193,8 @@ function doesExternalFilterPass(rowNode) {
  */
 function initGrid(requests) {
     const columnDefs = [
-        {headerName: "Initiator URL", field: "initiator", editable: true, filter: true, sortable: true},
-        {headerName: "Origin URL", field: "url", editable: true, filter: true, sortable: true},
+        {headerName: "Initiator Host", field: "initiator", editable: true, filter: true, sortable: true},
+        {headerName: "Destination URL", field: "url", editable: true, filter: true, sortable: true},
         {headerName: "Is Successful", field: "isSuccessful", filter: true, sortable: true},
         {headerName: "Method", field: "method", editable: true, filter: true, sortable: true},
         {headerName: "Request Headers", field: "requestHeaders",

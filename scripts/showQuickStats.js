@@ -83,7 +83,7 @@ db.requests.toArray().then(requests => {
 
     const columnDefs = [
         {headerName: "Rank", field: "rank", editable: true, filter: true},
-        {headerName: "Origin Host", field: "host", editable: true, filter: true},
+        {headerName: "Destination Host", field: "host", editable: true, filter: true},
         {headerName: "Number of Requests", field: "numRequests", editable: true, filter: true},
       ];
     

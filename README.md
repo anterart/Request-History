@@ -18,8 +18,8 @@ This a Chrome extension that allows to store all requests done in the browser an
 
 ### Show Collected Requests:
 The following requests and their relative responses attributes are tracked as of now and are visible in Show Collected Requests page:
-* Initiator Url
-* Origin Url
+* Initiator Host
+* Destination Url
 * Is Successful - whether the request was successful or not
 * Method
 * Request Headers
