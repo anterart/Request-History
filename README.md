@@ -42,3 +42,12 @@ It's possible to export a JSON file of all collected requests in order to analyz
 ## Future Work:
 1. After using the extension for a long time, it might collect a lot of data. It might be useful to use pagination techniques in order to load the data and show it.
 2. The body of requests is not tracked as of now. It's more complicated to track it since the body needs to be decoded, and the decode mechanism depedns on the mechanism that generated the request.
+
+## Technical Details:
+In this chapter I will provide more technical details about how the extension is implemented and what tools are used.
+The requests are captured using Chrome webrequest API: https://developer.chrome.com/docs/extensions/webrequest .
+The requests are stored in Chrome IndexedDB. I used dexie, a wrapper to Chrome IndexedDB API, https://dexie.org/, to interact with IndexedDB.
+The captured requests are displayed in ag-grid, https://www.ag-grid.com/ .
+I used moment.js in order to convert unix timestamps into human readable datetime strings, https://momentjs.com/ .
+
+
