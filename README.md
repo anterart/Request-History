@@ -55,5 +55,6 @@ In this chapter I will provide more technical details about how the extension is
 * The requests are stored in Chrome IndexedDB. I used dexie, a wrapper of Chrome IndexedDB API, https://dexie.org/, to interact with IndexedDB.
 * The captured requests are displayed in ag-grid, https://www.ag-grid.com/ .
 * I used moment.js in order to convert unix timestamps into human readable datetime strings, https://momentjs.com/ .
+* In order to remember whether Request Tracking is on or off, a Chrome local storage is used to store the relevant boolean value.
 
 
