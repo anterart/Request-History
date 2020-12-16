@@ -45,9 +45,9 @@ It's possible to export a JSON file of all collected requests in order to analyz
 
 ## Technical Details:
 In this chapter I will provide more technical details about how the extension is implemented and what tools are used.
-The requests are captured using Chrome webrequest API: https://developer.chrome.com/docs/extensions/webrequest .
-The requests are stored in Chrome IndexedDB. I used dexie, a wrapper to Chrome IndexedDB API, https://dexie.org/, to interact with IndexedDB.
-The captured requests are displayed in ag-grid, https://www.ag-grid.com/ .
-I used moment.js in order to convert unix timestamps into human readable datetime strings, https://momentjs.com/ .
+* The requests are captured using Chrome webrequest API: https://developer.chrome.com/docs/extensions/webrequest .
+* The requests are stored in Chrome IndexedDB. I used dexie, a wrapper to Chrome IndexedDB API, https://dexie.org/, to interact with IndexedDB.
+* The captured requests are displayed in ag-grid, https://www.ag-grid.com/ .
+* I used moment.js in order to convert unix timestamps into human readable datetime strings, https://momentjs.com/ .
 
 
