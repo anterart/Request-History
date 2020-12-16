@@ -45,7 +45,13 @@ It's possible to export a JSON file of all collected requests in order to analyz
 
 ## Technical Details:
 In this chapter I will provide more technical details about how the extension is implemented and what tools are used.
-* The requests are captured using Chrome webrequest API: https://developer.chrome.com/docs/extensions/webrequest .
+* The requests are captured using Chrome webrequest API: https://developer.chrome.com/docs/extensions/webrequest . This API provides event listeners for different events happening during a lifetime of a request:
+  1. onBeforeRequest - fires just before request is about to be sent.
+  2. onBeforeSendHeaders - fires just after the request headers are ready and just before they are going to be setnt.
+  3. onHeadersReceived - fires when response headers are received.
+  4. onErrorOccurred - fires when an error occures in processing the request.
+  5. onCompleted - fires when a request processing was completed successfully.
+  I configured an event listener for above events, the callback firing upon these events receives relevant request details available upon this event along with a unique request id for this session.
 * The requests are stored in Chrome IndexedDB. I used dexie, a wrapper of Chrome IndexedDB API, https://dexie.org/, to interact with IndexedDB.
 * The captured requests are displayed in ag-grid, https://www.ag-grid.com/ .
 * I used moment.js in order to convert unix timestamps into human readable datetime strings, https://momentjs.com/ .
